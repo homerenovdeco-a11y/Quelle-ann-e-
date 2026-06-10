@@ -375,7 +375,16 @@ function nextQ(){
   if(tbMode){tbIdx++;if(scores[0]!==scores[1]||tbIdx>=TIEBREAK.length){showResult();return;}renderQ();return;}
   cur++;if(cur>=Q.length){if(scores[0]===scores[1]){tbMode=true;tbIdx=0;renderQ();}else showResult();}else renderQ();
 }
-function startTimer(){tLeft=TIMER;updateChrono(tLeft);tInt=setInterval(()=>{tLeft--;updateChrono(tLeft);if(tLeft<=0){clearInterval(tInt);revealAnswers();}},1000);}
+function handleTimeout(){
+  // Temps écoulé — on active juste le bouton Révéler, pas de révélation auto
+  const fb = document.getElementById('bReveal');
+  // Flash the reveal button to attract attention
+  if(fb) { fb.style.animation='none'; void fb.offsetWidth; fb.style.background='#E84040'; }
+  document.getElementById('bNext').disabled = false;
+  soundTick(0);
+}
+
+function startTimer(){tLeft=TIMER;updateChrono(tLeft);tInt=setInterval(()=>{tLeft--;updateChrono(tLeft);if(tLeft<=0){clearInterval(tInt);handleTimeout();}},1000);}
 function stopTimer(){clearInterval(tInt);tInt=null;}
 function updateChrono(t){const arc=document.getElementById('cArc'),num=document.getElementById('cNum');arc.style.strokeDashoffset=CIRC*(1-t/TIMER);num.textContent=t;const u=t<=5;num.className='c-num'+(u?' urgent':'');arc.className='c-arc'+(u?' urgent':'');if(u)soundTick(t);}
 function askRemove(t){showConfirm('Retirer 1 point à '+tn(t)+' ?',()=>{if(scores[t]>0){scores[t]--;document.getElementById(t===0?'spA':'spB').textContent=scores[t];}});}
